@@ -246,10 +246,11 @@ MonoBehaviour:
   damping: 0
   searchRadius: 100
   repelForceMultiplier: 30
-  attractForceMultiplier: 1
-  numberOfRays: 7
+  attractForceMultiplier: 2
+  numberOfRays: 3
   collisionDetectionRange: 10
-  collisionAvoidanceRepelCoefficient: 10000
+  evasionAvoidanceCoefficient: 1000000
+  spinAvoidanceCoefficient: 100
 --- !u!54 &2270182826678676391
 Rigidbody:
   m_ObjectHideFlags: 0

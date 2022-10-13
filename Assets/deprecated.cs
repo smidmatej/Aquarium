@@ -1,14 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MyMathTools;
 
 public class Controller : MonoBehaviour
 {
     [SerializeField] Rigidbody m_rb; 
-    GameObject targetObject; 
-    [SerializeField] GameObject viz; 
     [SerializeField] float swim_speed;
-    [SerializeField] float m_RotationSpeed; 
     [SerializeField]  float randomRotationVariance = 0.1f;
 
 
@@ -27,24 +25,20 @@ public class Controller : MonoBehaviour
 
     [SerializeField] int numberOfRays = 10;
     [SerializeField] float collisionDetectionRange = 10.0f;
-    [SerializeField] float collisionAvoidanceRepelCoefficient = 1.0f;
+    [SerializeField] float evasionAvoidanceCoefficient = 1.0f;
+    [SerializeField] float spinAvoidanceCoefficient = 1.0f;
     
-    float angleMax = 90;
-    int fixedUpdateCount=0;
-
-    Vector3 repelTorque;
 
     // Start is called before the first frame update
     void Start()
     {
         m_rb = GetComponent<Rigidbody>();
         string my_species = "fish";
-        targetObject = GameObject.FindGameObjectWithTag("Target");
 
-        // Remove this GameObject from the list
         otherFish = GameObject.FindGameObjectsWithTag(my_species);
-        
+        // I am a fish, but I am not other fish
         RemoveMyselfFromOtherFishArray();
+
 
         nearFish = findNearFish();
         
@@ -52,6 +46,7 @@ public class Controller : MonoBehaviour
 
     void RemoveMyselfFromOtherFishArray()
     {
+        // Utility function 
         List<GameObject> newOtherFish = new List<GameObject>();
         for (int i = 0; i < otherFish.Length; i++)
         {
@@ -62,88 +57,69 @@ public class Controller : MonoBehaviour
     }
 
     private void OnDrawGizmos() {
-        // Obstacle avoidance
-        /*for (int i = 0; i < numberOfRays; i++)
+        // Obstacle avoidance draw rays
+        // Doesnt actually do anything, its just used to visualize the obstacle avoidance rays
+        for (int i = 0; i <= numberOfRays; i++)
         {
-            for (int j = 0; j < numberOfRays; j++)
+            for (int j = 0; j <= numberOfRays; j++)
             {
-                Quaternion rotation = m_rb.transform.rotation;
-                Quaternion rotationMody = Quaternion.AngleAxis( (i/ ((float)numberOfRays-1 ) * angleMax * 2 - angleMax), m_rb.transform.up);
-                Quaternion rotationModz = Quaternion.AngleAxis( (j/ ((float)numberOfRays-1 ) * angleMax * 2 - angleMax), m_rb.transform.forward);
-                Vector3 direction = rotation * rotationModz * rotationMody * new Vector3(1,0,0);
+                float phi = i/(float)numberOfRays*Mathf.PI - Mathf.PI/2.0f;
+                float theta = j/(float)numberOfRays*Mathf.PI;
+                Spherical localDir = new Spherical(1, phi, theta);
+                Vector3 localDir_cart = CoordConvert.SphericalToCartesian(localDir);
 
+                Quaternion q_wb = m_rb.transform.rotation; // body to world
+
+
+                Vector3 direction = q_wb * localDir_cart;
                 Gizmos.DrawRay(m_rb.transform.position, direction);
             }
-
-
-
         }
-        */
 
-        Gizmos.DrawRay(m_rb.transform.position, repelTorque);
     }
 
-    void FixedUpdate() {
-
-        Vector3 deltaPosition = Vector3.zero;
-
-
-
-        
-        nearFish = findNearFish(); // only look for swarm mates in a radius around you
-
-        Quaternion desiredRotation;
-        Vector3 repelForce = new Vector3(0,0,0);
-        Vector3 attactForce = new Vector3(0,0,0);
-
-
-        repelTorque = new Vector3(0,0,0);
-        if(fixedUpdateCount%10==0)
+    void ObstacleAvoidance()
+    {
+        // Obstacle avoidance
+        for (int i = 0; i <= numberOfRays; i++)
         {
-            // Obstacle avoidance
-            for (int i = 0; i < numberOfRays; i++)
+            for (int j = 0; j <= numberOfRays; j++)
             {
-                for (int j = 0; j < numberOfRays; j++)
-                {
-                    Quaternion rotation = m_rb.transform.rotation;
-                    Quaternion rotationModx = Quaternion.AngleAxis( (i/ ((float)numberOfRays-1 ) * angleMax * 2 - angleMax), m_rb.transform.up);
-                    Quaternion rotationMody = Quaternion.AngleAxis( (j/ ((float)numberOfRays-1 ) * angleMax * 2 - angleMax), m_rb.transform.forward);
-                    Vector3 direction = rotation * rotationModx * rotationMody * new Vector3(1,0,0);
 
-                    Ray ray = new Ray(m_rb.transform.position, direction);
-                    RaycastHit hitInfo;
-                    if(Physics.Raycast(ray, out hitInfo, collisionDetectionRange))
-                    {
-                        if(!hitInfo.transform.gameObject.tag.Equals("fish")){
-                            // I dont care about hitting other fish
-                            Vector3 torqueDirection = rotation * rotationModx * rotationMody * new Vector3(0,1,0);
-                            repelTorque += (collisionAvoidanceRepelCoefficient / numberOfRays) * torqueDirection;
-                        }
-                        
+                float phi = i/(float)numberOfRays*Mathf.PI - Mathf.PI/2.0f;
+                float theta = j/(float)numberOfRays*Mathf.PI;
+                Spherical localDir = new Spherical(1, phi, theta); // Hemisphere in swim direction (what do my eyes see?)
+                Vector3 localDir_cart = CoordConvert.SphericalToCartesian(localDir);
+
+                Quaternion q_wb = m_rb.transform.rotation; // body to world
+                Vector3 direction = q_wb * localDir_cart; // Direction of ray in world coordinates
+
+                Ray ray = new Ray(m_rb.transform.position, direction);
+                RaycastHit hitInfo;
+                // Cast a ray in ray direction and check for hit
+                if(Physics.Raycast(ray, out hitInfo, collisionDetectionRange))
+                {
+                    // The ray hit something, something is in front of me, I should evade
+                    if(!hitInfo.transform.gameObject.tag.Equals("fish")){
+                        // Oh its just another fish
+                        // Apply a torque around the dorsoventral axis (yaw) to dodge when I see an obstacle in from of me
+                        Vector3 spinTorqueAroundMainAxis = q_wb * Vector3.up; // little bit of spin around longitudinal axis
+                        Vector3 evasiveManouverTorqueAxis = q_wb * Vector3.right; // change swim direction 
+                        m_rb.AddTorque((1/Mathf.Pow(hitInfo.distance, 2)*evasionAvoidanceCoefficient / (float)numberOfRays) * spinTorqueAroundMainAxis); // spin a bit to avoid getting stuck
+                        m_rb.AddTorque((spinAvoidanceCoefficient / (float)numberOfRays) * evasiveManouverTorqueAxis); // 
                     }
                 }
-
             }
+
         }
+    }
 
-
-        if(nearFish.Length > 1)
-        {
-            // I see other fish, I swarm
-
-
+    Quaternion CalculateSwarmAligment()
+    {
             float w=.0f,x=0.0f,y=0.0f,z=0.0f;
             // What are the other fish doing?
             for (int i = 0; i < nearFish.Length; i++)
             {
-                // Each fish looks at all the other fish each time.fixedDeltaTime -> O(n^2) 
-                // Attract/Repel force
-                float d = Vector3.Distance(nearFish[i].transform.position, m_rb.transform.position);
-                Vector3 dir = nearFish[i].transform.position - m_rb.transform.position;
-                repelForce += dir/Mathf.Exp(d);
-                attactForce += dir/Mathf.Pow(d,1);
-
-
                 // Calculate mean rotation of all the other fish
                 w+=nearFish[i].transform.rotation.w;
                 x+=nearFish[i].transform.rotation.x;
@@ -152,7 +128,50 @@ public class Controller : MonoBehaviour
             }
             
             Quaternion meanRotation = new Quaternion(w/otherFish.Length, x/otherFish.Length, y/otherFish.Length, z/otherFish.Length);
-            desiredRotation = meanRotation;
+            return meanRotation;
+    }
+
+
+    void SwarmCohesionAndSeparation()
+    {   
+        Vector3 repelForce = new Vector3(0,0,0);
+        Vector3 attactForce = new Vector3(0,0,0);
+        // What are the other fish doing?
+        for (int i = 0; i < nearFish.Length; i++)
+        {
+                // Each fish looks at all the other fish each time.fixedDeltaTime -> O(n^2) 
+            // Attract/Repel force
+            float d = Vector3.Distance(nearFish[i].transform.position, m_rb.transform.position);
+            Vector3 dir = nearFish[i].transform.position - m_rb.transform.position;
+            repelForce += dir/Mathf.Exp(d); // separation force
+            attactForce += dir/Mathf.Pow(d,1); // cohesion force
+        }
+        
+
+        m_rb.AddForce(-repelForceMultiplier*repelForce); // Not too close to others
+        m_rb.AddForce(attractForceMultiplier*attactForce); // Not too far from others
+    }
+
+    void FixedUpdate() {
+
+        // I only look for swarm mates in a radius around me
+        nearFish = findNearFish(); 
+
+        
+
+        // Applies torque to avoid collisions
+        ObstacleAvoidance();
+
+        
+        Quaternion desiredRotation; 
+        if(nearFish.Length > 1)
+        {
+            // I see other fish, I swarm
+            // calculates a rotation that will be given as a reference to the PID controler
+            desiredRotation = CalculateSwarmAligment(); 
+            // Applies a attract/repel force based on the swarm
+            SwarmCohesionAndSeparation();
+
         }
         else
         {
@@ -160,26 +179,23 @@ public class Controller : MonoBehaviour
             desiredRotation = m_rb.transform.rotation;
         }
 
-        //desiredRotation = 
+        // Calculate the desired torque vector using a PD controller
+        Vector3 desiredRotationPID = CalculatePDTorque(desiredRotation);
 
-        // Random noise is accumulated into a torque vector. Noise is normal -> random walk, mean 0.
-        // When I applied noise directly to torque the movement was jerky. This functions as an integrator.
+        // Adds a bit of spice to the movement, otherwise all fish would just swim in the swarm
+        // Random noise is accumulated into a torque vector. Noise is normal -> random walk, mean 0
+        // When I applied noise directly to torque the movement was jerky. This functions as an integrator to filter out high frequencies
         noiseVelocityRandomWalk = AddNoiseToVector(noiseVelocityRandomWalk);
 
-        // Calculate the desired torque vector using a PD controller
-        Vector3 pid_rotation = CalculatePDTorque(desiredRotation);
 
-        m_rb.AddTorque (pid_rotation);
+        // Where do I want to swim
+        m_rb.AddTorque (desiredRotationPID);
+        // Jazz
         m_rb.AddTorque (noiseVelocityRandomWalk, ForceMode.VelocityChange);
-        m_rb.AddTorque (-repelTorque);
 
-        
-        m_rb.AddForce(-repelForceMultiplier*repelForce); // Not too close to others
-        m_rb.AddForce(attractForceMultiplier*attactForce); // Not too far from others
-
+        // Swim forward
         m_rb.AddForce(swim_speed*m_rb.transform.right, ForceMode.VelocityChange);
 
-        fixedUpdateCount++;
     }
 
 
@@ -264,30 +280,7 @@ public class Controller : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //VELOCITY MODE
-        //Vector3 targetVelocity = swim_speed * transform.forward;
-        //Vector3 velocityChange = targetVelocity - m_rb.velocity;
-        //m_rb.AddForce(velocityChange, ForceMode.VelocityChange);
 
-        //Vector3 dirDifference = dir - m_rb.transform.forward;
-        /*
-        Vector3 angularVelocity = new Vector3(1,1,1)*0.0000000001f;
-        Quaternion qwb = m_rb.transform.rotation;
-        Quaternion dq = qwb * new Quaternion(0, angularVelocity.x/ 2.0f, angularVelocity.y/ 2.0f, angularVelocity.z/ 2.0f);
-        m_rb.AddTorque(dq.eulerAngles, ForceMode.VelocityChange);
-        */
-       
-        //qwb.SetFromToRotation(transform.up, m_rb.transform.rotation)
-        /*
-        Quaternion orientation = new Quaternion()
-        
-        Vector3 angularVelocity = new Vector3(1,1,1);
-
-        
-        Vector3 Quaternion = new Vector3()
-        Vector3 targetAngularVelocity = m_RotationSpeed * transform.up;
-        Vector3 angularVelocityChange = targetAngularVelocity - m_rb.angularVelocity;
-        */
     }
 
     public static float NextGaussian() {
