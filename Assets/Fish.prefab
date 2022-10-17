@@ -238,15 +238,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_rb: {fileID: 0}
-  viz: {fileID: 1075998888248898297, guid: e14f5af1785c5964e8a0f7577c94f17e, type: 3}
-  swim_speed: 20
-  m_RotationSpeed: 0
+  swim_speed: 5
   randomRotationVariance: 0.1
   frequency: 5
   damping: 0
   searchRadius: 100
-  repelForceMultiplier: 30
-  attractForceMultiplier: 2
+  repelForceMultiplier: 1
+  attractForceMultiplier: 0.1
   numberOfRays: 3
   collisionDetectionRange: 10
   evasionAvoidanceCoefficient: 1000000

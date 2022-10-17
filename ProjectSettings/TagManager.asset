@@ -6,6 +6,7 @@ TagManager:
   tags:
   - fish
   - Target
+  - FishSettings
   layers:
   - Default
   - TransparentFX

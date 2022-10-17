@@ -5,17 +5,22 @@ using MyMathTools;
 
 public class ArtifishialInteligence : MonoBehaviour
 {
+
     [SerializeField] Rigidbody m_rb; 
-    [SerializeField] float swim_speed;
-    [SerializeField]  float randomRotationVariance = 0.1f;
+    float swim_speed;
+    float randomRotationVariance = 0.1f;
 
 
-    [SerializeField]  float frequency = 1.0f;
-    [SerializeField]  float damping = 1.0f;
-    [SerializeField]  float searchRadius = 10.0f;
+    float frequency = 1.0f;
+    float damping = 1.0f;
+    float searchRadius = 10.0f;
     
-    [SerializeField]  float repelForceMultiplier = 1.0f;
-    [SerializeField]  float attractForceMultiplier = 0.1f;
+    float repelForceMultiplier = 1.0f;
+    float attractForceMultiplier = 0.1f;
+
+    float collisionDetectionRange = 10.0f;
+    float evasionAvoidanceCoefficient = 1.0f;
+    float spinAvoidanceCoefficient = 1.0f;
 
     GameObject[] otherFish;
     GameObject[] nearFish = new GameObject[1]; 
@@ -23,15 +28,21 @@ public class ArtifishialInteligence : MonoBehaviour
     Vector3 noiseVelocityRandomWalk = new Vector3(0,0,0);
      
 
-    [SerializeField] int numberOfRays = 10;
-    [SerializeField] float collisionDetectionRange = 10.0f;
-    [SerializeField] float evasionAvoidanceCoefficient = 1.0f;
-    [SerializeField] float spinAvoidanceCoefficient = 1.0f;
+    //[SerializeField] int numberOfRays = 10;
+    int numberOfRays = 5;
+
     
+
+    public FishSettings fishSettings;
+
+
 
     // Start is called before the first frame update
     void Start()
     {
+        GameObject fishSettingsObject = GameObject.FindGameObjectWithTag("FishSettings");
+        fishSettings = fishSettingsObject.GetComponent<FishSettings>();
+        
         m_rb = GetComponent<Rigidbody>();
         string my_species = "fish";
 
@@ -42,6 +53,27 @@ public class ArtifishialInteligence : MonoBehaviour
 
         nearFish = findNearFish();
         
+    }
+
+    private void Update() {
+        SetSettings();
+    }
+
+    
+    void SetSettings()
+    {   
+        swim_speed = fishSettings.swim_speed;
+        randomRotationVariance = fishSettings.randomRotationVariance;
+        frequency = fishSettings.frequency;
+        damping = fishSettings.damping;
+        searchRadius = fishSettings.searchRadius;
+        repelForceMultiplier = fishSettings.repelForceMultiplier;
+        attractForceMultiplier = fishSettings.attractForceMultiplier;
+        collisionDetectionRange = fishSettings.collisionDetectionRange;
+        evasionAvoidanceCoefficient = fishSettings.evasionAvoidanceCoefficient;
+        spinAvoidanceCoefficient = fishSettings.spinAvoidanceCoefficient;
+
+
     }
 
     void RemoveMyselfFromOtherFishArray()
@@ -56,15 +88,16 @@ public class ArtifishialInteligence : MonoBehaviour
         otherFish = newOtherFish.ToArray();
     }
 
+    /*
     private void OnDrawGizmos() {
         // Obstacle avoidance draw rays
         // Doesnt actually do anything, its just used to visualize the obstacle avoidance rays
-        for (int i = 0; i <= numberOfRays; i++)
+        for (int i = 0; i < numberOfRays; i++)
         {
-            for (int j = 0; j <= numberOfRays; j++)
+            for (int j = 0; j < numberOfRays; j++)
             {
-                float phi = i/(float)numberOfRays*Mathf.PI - Mathf.PI/2.0f;
-                float theta = j/(float)numberOfRays*Mathf.PI;
+                float phi = i/(float)numberOfRays*Mathf.PI;
+                float theta = j/(float)numberOfRays*Mathf.PI/2 + Mathf.PI/2.0f;
                 Spherical localDir = new Spherical(1, phi, theta);
                 Vector3 localDir_cart = CoordConvert.SphericalToCartesian(localDir);
 
@@ -72,22 +105,25 @@ public class ArtifishialInteligence : MonoBehaviour
 
 
                 Vector3 direction = q_wb * localDir_cart;
-                Gizmos.DrawRay(m_rb.transform.position, direction);
+                //Gizmos.DrawRay(m_rb.transform.position, direction);
             }
         }
 
+        Gizmos.DrawRay(m_rb.transform.position, m_rb.transform.rotation * Vector3.up);
+
     }
+    */
 
     void ObstacleAvoidance()
     {
         // Obstacle avoidance
-        for (int i = 0; i <= numberOfRays; i++)
+        for (int i = 0; i < numberOfRays; i++)
         {
-            for (int j = 0; j <= numberOfRays; j++)
+            for (int j = 0; j < numberOfRays; j++)
             {
 
-                float phi = i/(float)numberOfRays*Mathf.PI - Mathf.PI/2.0f;
-                float theta = j/(float)numberOfRays*Mathf.PI;
+                float phi = i/(float)numberOfRays*Mathf.PI;
+                float theta = j/(float)numberOfRays*Mathf.PI/2;
                 Spherical localDir = new Spherical(1, phi, theta); // Hemisphere in swim direction (what do my eyes see?)
                 Vector3 localDir_cart = CoordConvert.SphericalToCartesian(localDir);
 
@@ -95,18 +131,27 @@ public class ArtifishialInteligence : MonoBehaviour
                 Vector3 direction = q_wb * localDir_cart; // Direction of ray in world coordinates
 
                 Ray ray = new Ray(m_rb.transform.position, direction);
+                Debug.DrawRay(m_rb.transform.position, direction *collisionDetectionRange, Color.yellow);
+                //Debug.Log(ray);
                 RaycastHit hitInfo;
+
                 // Cast a ray in ray direction and check for hit
                 if(Physics.Raycast(ray, out hitInfo, collisionDetectionRange))
                 {
+                    Debug.DrawRay(m_rb.transform.position, direction *hitInfo.distance, Color.red);
+                    //Debug.Log(hitInfo.transform.gameObject.tag.Equals("fish"));
                     // The ray hit something, something is in front of me, I should evade
                     if(!hitInfo.transform.gameObject.tag.Equals("fish")){
                         // Oh its just another fish
                         // Apply a torque around the dorsoventral axis (yaw) to dodge when I see an obstacle in from of me
-                        Vector3 spinTorqueAroundMainAxis = q_wb * Vector3.up; // little bit of spin around longitudinal axis
-                        Vector3 evasiveManouverTorqueAxis = q_wb * Vector3.right; // change swim direction 
-                        m_rb.AddTorque((1/Mathf.Pow(hitInfo.distance, 2)*evasionAvoidanceCoefficient / (float)numberOfRays) * spinTorqueAroundMainAxis); // spin a bit to avoid getting stuck
-                        m_rb.AddTorque((spinAvoidanceCoefficient / (float)numberOfRays) * evasiveManouverTorqueAxis); // 
+                        Debug.Log(hitInfo);
+                        Vector3 evasiveManouverTorqueAxis = q_wb * Vector3.up; // change swim direction 
+                        Vector3 spinTorqueAroundMainAxis = q_wb * Vector3.right; // little bit of spin around longitudinal axis
+                        
+                        Debug.Log((1/Mathf.Pow(hitInfo.distance, 2)*spinAvoidanceCoefficient / (float)numberOfRays) * spinTorqueAroundMainAxis);
+                        m_rb.AddTorque(spinAvoidanceCoefficient / (float)numberOfRays * spinTorqueAroundMainAxis); // spin a bit to avoid getting stuck
+                        m_rb.AddTorque((1/Mathf.Pow(hitInfo.distance, 2)*evasionAvoidanceCoefficient / (float)numberOfRays) * evasiveManouverTorqueAxis); // 
+                        
                     }
                 }
             }
@@ -143,7 +188,7 @@ public class ArtifishialInteligence : MonoBehaviour
             // Attract/Repel force
             float d = Vector3.Distance(nearFish[i].transform.position, m_rb.transform.position);
             Vector3 dir = nearFish[i].transform.position - m_rb.transform.position;
-            repelForce += dir/Mathf.Exp(d); // separation force
+            repelForce += dir/Mathf.Pow(d,2); // separation force
             attactForce += dir/Mathf.Pow(d,1); // cohesion force
         }
         
@@ -186,7 +231,7 @@ public class ArtifishialInteligence : MonoBehaviour
         // Random noise is accumulated into a torque vector. Noise is normal -> random walk, mean 0
         // When I applied noise directly to torque the movement was jerky. This functions as an integrator to filter out high frequencies
         noiseVelocityRandomWalk = AddNoiseToVector(noiseVelocityRandomWalk);
-
+        noiseVelocityRandomWalk = noiseVelocityRandomWalk.normalized*randomRotationVariance;
 
         // Where do I want to swim
         m_rb.AddTorque (desiredRotationPID);
@@ -277,11 +322,7 @@ public class ArtifishialInteligence : MonoBehaviour
         return closeFish;
 
     }
-    // Update is called once per frame
-    void Update()
-    {
 
-    }
 
     public static float NextGaussian() {
         float v1, v2, s;
