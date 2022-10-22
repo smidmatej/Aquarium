@@ -652,8 +652,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b62f1974fe9e64498e8e37006cf6192, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fish: {fileID: 5882799039895528355, guid: 5bd00e7f3cf907e41989cfc3c2abd565, type: 3}
-  number_of_objects: 10
+  fish: {fileID: 3944215313162846335, guid: 06c33c52729ebb84fbdd6caba43315b6, type: 3}
+  number_of_objects: 50
 --- !u!4 &980598120
 Transform:
   m_ObjectHideFlags: 0
@@ -908,11 +908,17 @@ MonoBehaviour:
   frequency: 10
   damping: 1
   searchRadius: 10
-  repelForceMultiplier: 1
-  attractForceMultiplier: 0.1
+  repelForceMultiplier: 0
+  attractForceMultiplier: 0
   collisionDetectionRange: 10
   evasionAvoidanceCoefficient: 10
   spinAvoidanceCoefficient: 1
+  minSpeed: 1
+  maxSpeed: 10
+  maxSteerForce: 10
+  swarmCoefficient: 0
+  cohesionCoefficient: 0
+  separationCoefficient: 0
 --- !u!1 &1452864071
 GameObject:
   m_ObjectHideFlags: 0

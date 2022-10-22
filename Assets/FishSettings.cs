@@ -26,6 +26,14 @@ public class FishSettings : MonoBehaviour
     [SerializeField] public float evasionAvoidanceCoefficient = 1.0f;
     [SerializeField] public float spinAvoidanceCoefficient = 1.0f;
 
+    [SerializeField] public float minSpeed = 1.0f;
+    [SerializeField] public float maxSpeed = 10.0f;
+
+    [SerializeField] public float maxSteerForce = 10.0f;
+    [SerializeField] public float swarmCoefficient = 10.0f;
+    [SerializeField] public float cohesionCoefficient = 10.0f;
+    [SerializeField] public float separationCoefficient = 10.0f;
+
 }
 
 
