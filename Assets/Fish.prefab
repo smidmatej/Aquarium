@@ -238,17 +238,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_rb: {fileID: 0}
-  swim_speed: 5
-  randomRotationVariance: 0.1
-  frequency: 5
-  damping: 0
-  searchRadius: 100
-  repelForceMultiplier: 1
-  attractForceMultiplier: 0.1
-  numberOfRays: 3
-  collisionDetectionRange: 10
-  evasionAvoidanceCoefficient: 1000000
-  spinAvoidanceCoefficient: 100
+  fishSettings: {fileID: 0}
 --- !u!54 &2270182826678676391
 Rigidbody:
   m_ObjectHideFlags: 0
