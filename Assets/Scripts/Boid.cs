@@ -110,7 +110,7 @@ public class Boid : MonoBehaviour
 
         
 
-
+    
         Vector3 acc = swarmDirection + cohesionForce + separationForce;
         Debug.Log($"acc ={acc}" );
         acc = new Vector3(0,0,0);
@@ -124,6 +124,7 @@ public class Boid : MonoBehaviour
         Debug.Log($"Velocity ={velocity}" );
         this.transform.position += velocity*Time.fixedDeltaTime;
         this.transform.forward = dir;
+        
     }
 
 

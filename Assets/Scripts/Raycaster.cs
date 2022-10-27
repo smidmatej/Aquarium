@@ -8,16 +8,16 @@ public class Raycaster : MonoBehaviour
     Vector3 headPosition = new Vector3(0,0,0);
     Quaternion lookOrientationLocal; 
     List<Vector3> pointsOnASphere;
-    float rayLength = 5f;
+    float rayLength = 10f;
     int numberOfPoints = 100;
     bool headingForCollision = false;
     Vector3 avoidanceDirection;
     Vector3 avoidanceForce;
-    float maxSpeed = 1f;
+    float maxSpeed = 3f;
     Vector3 velocity;
     Vector3 acceleration;
     float accelerationFactor = 0.001f;
-    float maxSteerForce = 1000f;
+    float maxSteerForce = 5f;
     float mySize = 2f;
 
 
@@ -57,18 +57,16 @@ public class Raycaster : MonoBehaviour
         avoidanceDirection = new Vector3(-1,0,0);
         
         pointsOnASphere = fibonacciSphere(numberOfPoints, lookOrientationLocal);
-        displayCollisionRays();
-        if(Time.frameCount%10==0)
-        {
+        //displayCollisionRays();
         headingForCollision = isHeadingForColision();
         if(headingForCollision){
-            Debug.Log("Heading for collision");
+            //Debug.Log("Heading for collision");
             avoidanceDirection = noObstacleDirection();
-            Debug.Log("Avoidance direction: " + avoidanceDirection);
+            //Debug.Log("Avoidance direction: " + avoidanceDirection);
             avoidanceForce = SteeringForce(avoidanceDirection);
             acceleration += avoidanceForce;
             //Debug.Log("avoidanceForce: " + avoidanceForce);
-            Debug.DrawRay(this.transform.position, avoidanceForce, Color.cyan);
+            //Debug.DrawRay(this.transform.position, avoidanceForce, Color.cyan);
             //velocity = avoidanceForce.normalized*maxSpeed;
         }
         else
@@ -82,9 +80,9 @@ public class Raycaster : MonoBehaviour
             acceleration = this.transform.forward.normalized * accelerationFactor;
         }
         */
-        }
-        Debug.DrawRay(this.transform.position, avoidanceForce, Color.cyan);
-        Debug.DrawRay(this.transform.position, velocity, Color.green);
+        
+        //Debug.DrawRay(this.transform.position, avoidanceForce, Color.cyan);
+        //Debug.DrawRay(this.transform.position, velocity, Color.green);
         Debug.Log("Acceleration: " + acceleration);
         velocity += acceleration * Time.fixedDeltaTime;
         
@@ -97,8 +95,8 @@ public class Raycaster : MonoBehaviour
 
     // This is basically a P controller
     Vector3 SteeringForce (Vector3 desiredDirection) {
-        Vector3 v = desiredDirection.normalized - velocity.normalized;
-        v = v * maxSteerForce;
+        Vector3 v = desiredDirection.normalized * maxSpeed - velocity;
+        //v = v * maxSteerForce;
         //Vector3 v = desiredDirection.normalized * maxSpeed;
         return Vector3.ClampMagnitude (v, maxSteerForce);
     }
@@ -135,7 +133,7 @@ public class Raycaster : MonoBehaviour
         if(Physics.SphereCast(ray, mySize, out hitInfo, rayLength, fishLayerMask))
         {
             //Debug.Log(hitInfo.distance);
-            Debug.DrawRay(this.transform.position + this.transform.rotation*headPosition, hitInfo.distance*this.transform.forward, Color.red);
+            //Debug.DrawRay(this.transform.position + this.transform.rotation*headPosition, hitInfo.distance*this.transform.forward, Color.red);
             return true;
         }
         
@@ -155,7 +153,7 @@ public class Raycaster : MonoBehaviour
             if(!Physics.SphereCast(ray, mySize, rayLength, fishLayerMask))
             {
                 Debug.DrawRay(this.transform.position + this.transform.rotation*headPosition, rayLength*(this.transform.rotation*direction), Color.blue);
-                return direction;
+                return this.transform.rotation*direction;
             }
         }
         return Vector3.zero;

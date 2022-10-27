@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using MyMathTools;
 
+
 public class ArtifishialInteligence : MonoBehaviour
 {
 
@@ -22,38 +23,189 @@ public class ArtifishialInteligence : MonoBehaviour
     float evasionAvoidanceCoefficient = 1.0f;
     float spinAvoidanceCoefficient = 1.0f;
 
+    List<Vector3> raysInFront;
+    
+
     GameObject[] otherFish;
     GameObject[] nearFish = new GameObject[1]; 
 
     Vector3 noiseVelocityRandomWalk = new Vector3(0,0,0);
      
-
+    Collider m_Collider;
     //[SerializeField] int numberOfRays = 10;
     int numberOfRays = 5;
 
-    
+    float mySize;
+
+    float aligmentCoefficient = 1.0f;
+    float avoidanceCoefficient = 10.0f;
+    float randomTorqueCoefficient = 1.0f;
 
     public FishSettings fishSettings;
 
 
+    Vector3 aligmentTorquePID;
+    Vector3 avoidanceDirection;
+    Vector3 avoidanceTorquePID;
+    // bitshift to fish layer
+    int fishLayerMask;
 
     // Start is called before the first frame update
     void Start()
     {
+
         GameObject fishSettingsObject = GameObject.FindGameObjectWithTag("FishSettings");
         fishSettings = fishSettingsObject.GetComponent<FishSettings>();
-        
+
+        fishLayerMask = (1 << LayerMask.NameToLayer("Fish"));
+        // This casts rays only against colliders in layer 3.
+        // But to collide against everything except layer 3, use the ~ operator because it inverts a bitmask.
+        fishLayerMask = ~fishLayerMask;
+
+
+        m_Collider = GetComponent<Collider>();
+
+        // Extents are the half-widths of the box.
+        // I only care about the thickness
+        Vector3 mySizeVector = m_Collider.bounds.extents;
+        mySize = Mathf.Max(Mathf.Max(mySizeVector.x, mySizeVector.y), mySizeVector.z);;
+
+
+
+
         m_rb = GetComponent<Rigidbody>();
-        string my_species = "fish";
+        string my_species = "Fish";
 
         otherFish = GameObject.FindGameObjectsWithTag(my_species);
+
         // I am a fish, but I am not other fish
         RemoveMyselfFromOtherFishArray();
 
-
-        nearFish = findNearFish();
+        if(otherFish.Length != 0)
+        {
+            //Debug.Log("otherFish.Length = " + otherFish.Length);
+            nearFish = findNearFish();
+            //Debug.Log("nearFish.Length = " + nearFish.Length);
+        }
         
     }
+    
+    void FixedUpdate() 
+    {
+        avoidanceTorquePID = Vector3.zero;
+        aligmentTorquePID = Vector3.zero;
+
+        //Debug.Log("otherFish.Length = " + otherFish.Length);
+        Quaternion lookOrientationLocal = Quaternion.FromToRotation(Vector3.up, Vector3.forward);
+        Quaternion lookOrientationGlobal = m_rb.rotation * lookOrientationLocal;
+
+        raysInFront = Utils.fibonacciSphere(numberOfRays, lookOrientationGlobal);
+
+        if(otherFish.Length != 0)
+        {
+            // I only look for swarm mates in a radius around me
+            nearFish = findNearFish(); 
+        }
+
+        //DrawRayToNearFish();
+        
+
+        // Applies torque to avoid collisions
+        //ObstacleAvoidance();
+        if(isHeadingForColision())
+        {
+            avoidanceDirection = noObstacleDirection();
+            Quaternion avoidanceOrientation = Quaternion.FromToRotation(Vector3.forward, avoidanceDirection);
+            avoidanceTorquePID = CalculatePDTorque(avoidanceOrientation);
+            Debug.Log("avoidanceTorquePID: " + avoidanceTorquePID);
+            Debug.DrawRay(m_rb.transform.position, avoidanceTorquePID, Color.cyan);
+        }
+        
+
+        if(nearFish.Length >= 1)
+        {
+            // I see other fish, I swarm
+            // calculates a rotation that will be given as a reference to the PID controler
+            Quaternion swarmMeanOrientationRotation = CalculateSwarmAligment(); 
+            aligmentTorquePID = CalculatePDTorque(swarmMeanOrientationRotation);
+
+        }
+
+
+        // Calculate the desired torque vector using a PD controller
+
+
+        // Adds a bit of spice to the movement, otherwise all fish would just swim in the swarm
+        // Random noise is accumulated into a torque vector. Noise is normal -> random walk, mean 0
+        // When I applied noise directly to torque the movement was jerky. This functions as an integrator to filter out high frequencies
+        noiseVelocityRandomWalk = AddNoiseToVector(noiseVelocityRandomWalk);
+        noiseVelocityRandomWalk = noiseVelocityRandomWalk.normalized*randomRotationVariance;
+        
+        Vector3 noiseTorque = new Vector3(NextGaussian(0, randomRotationVariance), 
+                                        NextGaussian(0, randomRotationVariance), 
+                                        NextGaussian(0, randomRotationVariance));
+        // Coefficients have only relative values, they do not increase the magnitude of the torque
+        float sumOfCoefficients = aligmentCoefficient + avoidanceCoefficient + randomTorqueCoefficient;
+        
+        Vector3 totalTorque = aligmentCoefficient/sumOfCoefficients * aligmentTorquePID +
+                             avoidanceCoefficient/sumOfCoefficients * avoidanceTorquePID + 
+                             randomTorqueCoefficient/sumOfCoefficients * noiseTorque;
+        //Debug.Log("totalTorque: " + totalTorque);
+        //Debug.DrawRay(m_rb.transform.position, totalTorque, Color.red);
+        // Where do I want to swim
+        m_rb.AddTorque (totalTorque);
+
+        //m_rb.AddTorque (avoidanceTorquePID);
+
+        // Swim forward
+        m_rb.AddForce(swim_speed*m_rb.transform.forward, ForceMode.VelocityChange);
+
+    }
+
+    void DrawRayToNearFish()
+    {
+        foreach (GameObject fish in nearFish)
+        {
+            Debug.DrawLine(transform.position, fish.transform.position, Color.green);
+        }
+    }
+    
+    bool isHeadingForColision(){
+
+
+        Ray ray = new Ray(m_rb.transform.position, m_rb.transform.forward);
+        RaycastHit hitInfo;
+
+        // Cast a ray in ray direction and check for hit
+        if(Physics.SphereCast(ray, mySize, out hitInfo, collisionDetectionRange, fishLayerMask))
+        {
+            //Debug.Log(hitInfo.distance);
+            Debug.DrawRay(m_rb.transform.position, hitInfo.distance*m_rb.transform.forward, Color.red);
+            return true;
+        }
+        
+        return false;
+    }
+
+    Vector3 noObstacleDirection(){
+
+        foreach (Vector3 direction in raysInFront)
+        {
+            Ray ray = new Ray(m_rb.transform.position, direction);
+
+            // Cast a ray in ray direction and check for hit
+            // if there is no obstacle, return that direction
+            // directions in pointsOnASphere are sorted by distance from the center of the hemisphere, 
+            // so the first one is the closest to straight direction
+            if(!Physics.SphereCast(ray, mySize, collisionDetectionRange, fishLayerMask))
+            {
+                Debug.DrawRay(m_rb.transform.position, collisionDetectionRange*direction, Color.blue);
+                return direction;
+            }
+        }
+        return Vector3.zero;
+    }
+
 
     private void Update() {
         SetSettings();
@@ -197,51 +349,7 @@ public class ArtifishialInteligence : MonoBehaviour
         m_rb.AddForce(attractForceMultiplier*attactForce); // Not too far from others
     }
 
-    void FixedUpdate() {
-
-        // I only look for swarm mates in a radius around me
-        nearFish = findNearFish(); 
-
-        
-
-        // Applies torque to avoid collisions
-        ObstacleAvoidance();
-
-        
-        Quaternion desiredRotation; 
-        if(nearFish.Length > 1)
-        {
-            // I see other fish, I swarm
-            // calculates a rotation that will be given as a reference to the PID controler
-            desiredRotation = CalculateSwarmAligment(); 
-            // Applies a attract/repel force based on the swarm
-            SwarmCohesionAndSeparation();
-
-        }
-        else
-        {
-            // I am all alone, keep my rotation
-            desiredRotation = m_rb.transform.rotation;
-        }
-
-        // Calculate the desired torque vector using a PD controller
-        Vector3 desiredRotationPID = CalculatePDTorque(desiredRotation);
-
-        // Adds a bit of spice to the movement, otherwise all fish would just swim in the swarm
-        // Random noise is accumulated into a torque vector. Noise is normal -> random walk, mean 0
-        // When I applied noise directly to torque the movement was jerky. This functions as an integrator to filter out high frequencies
-        noiseVelocityRandomWalk = AddNoiseToVector(noiseVelocityRandomWalk);
-        noiseVelocityRandomWalk = noiseVelocityRandomWalk.normalized*randomRotationVariance;
-
-        // Where do I want to swim
-        m_rb.AddTorque (desiredRotationPID);
-        // Jazz
-        m_rb.AddTorque (noiseVelocityRandomWalk, ForceMode.VelocityChange);
-
-        // Swim forward
-        m_rb.AddForce(swim_speed*m_rb.transform.right, ForceMode.VelocityChange);
-
-    }
+    
 
 
 
@@ -263,6 +371,7 @@ public class ArtifishialInteligence : MonoBehaviour
         return q;
     }
 
+    // dont @ me
     Vector3 CalculatePDTorque(Quaternion desiredRotation)
     {
         float kp = (6f*frequency)*(6f*frequency)* 0.25f;
@@ -301,6 +410,7 @@ public class ArtifishialInteligence : MonoBehaviour
 
     GameObject[] findNearFish()
     {
+        //Debug.Log("other fish.Length: " + otherFish.Length);
         float[] distances = new float[otherFish.Length];
         List<int> index_of_close_fish = new List<int>();
 

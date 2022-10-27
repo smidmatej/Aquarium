@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3944215313162846334}
-  - component: {fileID: -1962902366345164205}
+  - component: {fileID: -1399040122833746836}
   m_Layer: 0
   m_Name: Boid
   m_TagString: fish
@@ -33,7 +33,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
---- !u!114 &-1962902366345164205
+--- !u!114 &-1399040122833746836
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -42,9 +42,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3944215313162846335}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85c2de3e4754b574a9742250bba97267, type: 3}
+  m_Script: {fileID: 11500000, guid: ecbb9a8932ef86a46a73e7faced860ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_rb: {fileID: 0}
   fishSettings: {fileID: 0}
 --- !u!1 &3944215313987881847
 GameObject:

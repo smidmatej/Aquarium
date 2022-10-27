@@ -632,7 +632,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 980598120}
-  - component: {fileID: 980598119}
+  - component: {fileID: 980598121}
   m_Layer: 0
   m_Name: Spawner
   m_TagString: Untagged
@@ -640,20 +640,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &980598119
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 980598118}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b62f1974fe9e64498e8e37006cf6192, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fish: {fileID: 3944215313162846335, guid: 06c33c52729ebb84fbdd6caba43315b6, type: 3}
-  number_of_objects: 50
 --- !u!4 &980598120
 Transform:
   m_ObjectHideFlags: 0
@@ -668,6 +654,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &980598121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 980598118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 625e71003a0f76249abb6514cff02afc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fish: {fileID: 5882799039895528355, guid: 11cb9f52621869840b8867efd235c221, type: 3}
+  number_of_objects: 1
 --- !u!1 &1025189458
 GameObject:
   m_ObjectHideFlags: 0
@@ -900,25 +900,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 1432434309}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7c65b1810ea76204380cb7c5bd4491d4, type: 3}
+  m_Script: {fileID: 11500000, guid: c89adf2e1e9d87d438de923c37a6c103, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  swim_speed: 5
+  swim_speed: 0
   randomRotationVariance: 0.1
-  frequency: 10
+  frequency: 1
   damping: 1
   searchRadius: 10
-  repelForceMultiplier: 0
-  attractForceMultiplier: 0
+  repelForceMultiplier: 1
+  attractForceMultiplier: 0.1
   collisionDetectionRange: 10
-  evasionAvoidanceCoefficient: 10
+  evasionAvoidanceCoefficient: 1
   spinAvoidanceCoefficient: 1
   minSpeed: 1
   maxSpeed: 10
   maxSteerForce: 10
-  swarmCoefficient: 0
-  cohesionCoefficient: 0
-  separationCoefficient: 0
+  swarmCoefficient: 10
+  cohesionCoefficient: 10
+  separationCoefficient: 10
 --- !u!1 &1452864071
 GameObject:
   m_ObjectHideFlags: 0
