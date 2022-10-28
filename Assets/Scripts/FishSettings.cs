@@ -9,30 +9,34 @@ using UnityEngine;
 
 public class FishSettings : MonoBehaviour
 {
-    [SerializeField] public float swim_speed;
+    [Header("Fish Settings")]
+    [SerializeField] public float swimSpeed;
+
+
+    [Header("Obstacle Avoidance PID")]
+    [SerializeField] public float frequencyPDObstacleAvoidance = 1.0f;
+    [SerializeField] public float dampingPDObstacleAvoidance = 1.0f;
+
+    [Header("Alignment PID")]
+    [SerializeField] public float frequencyPDalignment = 1.0f;
+    [SerializeField] public float dampingPDalignment = 1.0f;
+    [SerializeField] public float swarmSearchRadius = 10.0f;
+
+
+    [Header("Relative Priority of Behaviours")]
+    [SerializeField] public float alignmentCoefficient = 1.0f;
+    [SerializeField] public float avoidanceCoefficient = 1.0f;
+    [SerializeField] public float randomTorqueCoefficient = 1.0f;
+
+
+    [Header("Random Torque")]
     [SerializeField] public float randomRotationVariance = 0.1f;
 
-    [Header("Cohesion PID")]
-    [SerializeField] public float frequency = 1.0f;
-    [SerializeField] public float damping = 1.0f;
-    [SerializeField] public float searchRadius = 10.0f;
-    
-    [Header("Swarming")]
-    [SerializeField] public float repelForceMultiplier = 1.0f;
-    [SerializeField] public float attractForceMultiplier = 0.1f;
-
     [Header("Collision Decection")]
+    [SerializeField] public int numberOfRays = 10;
+
     [SerializeField] public float collisionDetectionRange = 10.0f;
-    [SerializeField] public float evasionAvoidanceCoefficient = 1.0f;
-    [SerializeField] public float spinAvoidanceCoefficient = 1.0f;
-
-    [SerializeField] public float minSpeed = 1.0f;
-    [SerializeField] public float maxSpeed = 10.0f;
-
-    [SerializeField] public float maxSteerForce = 10.0f;
-    [SerializeField] public float swarmCoefficient = 10.0f;
-    [SerializeField] public float cohesionCoefficient = 10.0f;
-    [SerializeField] public float separationCoefficient = 10.0f;
+    
 
 }
 

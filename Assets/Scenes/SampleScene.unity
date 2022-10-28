@@ -667,7 +667,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fish: {fileID: 5882799039895528355, guid: 11cb9f52621869840b8867efd235c221, type: 3}
-  number_of_objects: 1
+  number_of_objects: 100
 --- !u!1 &1025189458
 GameObject:
   m_ObjectHideFlags: 0
@@ -903,9 +903,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c89adf2e1e9d87d438de923c37a6c103, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  swim_speed: 0
+  swim_speed: 5
   randomRotationVariance: 0.1
-  frequency: 1
+  frequency: 50
   damping: 1
   searchRadius: 10
   repelForceMultiplier: 1
