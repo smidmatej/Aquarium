@@ -16,6 +16,11 @@ public class ArtifishialInteligence : MonoBehaviour
     float dampingPDObstacleAvoidance = 1.0f;
     float frequencyPDalignment = 1.0f;
     float dampingPDalignment = 1.0f;
+
+    float frequencyPDCoM = 1.0f;
+    float dampingPDCoM = 1.0f;
+
+    
     float swarmSearchRadius = 10.0f;
     float collisionDetectionRange = 10.0f;
     int numberOfRays = 5;
@@ -38,9 +43,11 @@ public class ArtifishialInteligence : MonoBehaviour
     List<Vector3> raysInFront;
     Collider m_Collider;
 
-    Vector3 alignmentTorquePID;
     Vector3 avoidanceDirection;
     Vector3 avoidanceTorquePID;
+    Vector3 alignmentTorquePID;
+    Vector3 swarmCenterTorquePID;
+    
     // bitshift to fish layer
     int fishLayerMask;
 
@@ -85,6 +92,7 @@ public class ArtifishialInteligence : MonoBehaviour
     {
         avoidanceTorquePID = Vector3.zero;
         alignmentTorquePID = Vector3.zero;
+        swarmCenterTorquePID = Vector3.zero;
 
         // List of directions in a hemishere in front of the fish (global referential)
         Quaternion lookOrientationLocal = Quaternion.FromToRotation(Vector3.up, Vector3.forward);
@@ -102,12 +110,23 @@ public class ArtifishialInteligence : MonoBehaviour
                 
                 // Find the average orientation of the fish around me
                 Quaternion swarmMeanOrientationRotation = CalculateSwarmalignment(nearFish);
+
+                Vector3 meanPosition = CalculateSwarmCoM(nearFish);
+                Vector3 meanPositionDirection = meanPosition - m_rb.position;
+                float distance = meanPositionDirection.magnitude;
+                Quaternion swarmOrientationToCenter = Quaternion.FromToRotation(Vector3.forward, meanPositionDirection);
+
+                float Tmax = 100f;
                 // Find the torque I need to apply to get to that orientation 
                 alignmentTorquePID = CalculatePDTorque(swarmMeanOrientationRotation, frequencyPDalignment, dampingPDalignment);
+                //Debug.Log("frequencyPDCoM = " + frequencyPDCoM);
+                swarmCenterTorquePID = CalculatePDTorque(swarmOrientationToCenter, frequencyPDCoM, dampingPDCoM);
+                float T = -Tmax + distance*2*Tmax/swarmSearchRadius;
+                //swarmCenterTorquePID *= T;
             }
         }
 
-        //DrawRayToNearFish();
+        DrawRayToNearFish();
         
         // Avoidance
         if(isHeadingForColision())
@@ -140,7 +159,7 @@ public class ArtifishialInteligence : MonoBehaviour
         
         Vector3 totalTorque = alignmentCoefficient/sumOfCoefficients * alignmentTorquePID +
                              avoidanceCoefficient/sumOfCoefficients * avoidanceTorquePID + 
-                             randomTorqueCoefficient/sumOfCoefficients * noiseTorque;
+                             randomTorqueCoefficient/sumOfCoefficients * swarmCenterTorquePID;
 
         // There is significant angular drag on m_rb
         m_rb.AddTorque (totalTorque);
@@ -156,7 +175,7 @@ public class ArtifishialInteligence : MonoBehaviour
     {
         foreach (GameObject fish in nearFish)
         {
-            Debug.DrawLine(transform.position, fish.transform.position, Color.green);
+            Debug.DrawLine(m_rb.transform.position, fish.transform.position, Color.green);
         }
     }
     
@@ -169,9 +188,13 @@ public class ArtifishialInteligence : MonoBehaviour
         // Cast a ray in ray direction and check for hit
         if(Physics.SphereCast(ray, mySize, out hitInfo, collisionDetectionRange, fishLayerMask))
         {
+            if(hitInfo.rigidbody != m_rb)
+            {
+                // Dont count myself as an obstacle
+                return true;
+            }
             //Debug.Log(hitInfo.distance);
-            Debug.DrawRay(m_rb.transform.position, hitInfo.distance*m_rb.transform.forward, Color.red);
-            return true;
+            //Debug.DrawRay(m_rb.transform.position, hitInfo.distance*m_rb.transform.forward, Color.red);
         }
         
         return false;
@@ -189,7 +212,8 @@ public class ArtifishialInteligence : MonoBehaviour
             // so the first one is the closest to straight direction
             if(!Physics.SphereCast(ray, mySize, collisionDetectionRange, fishLayerMask))
             {
-                Debug.DrawRay(m_rb.transform.position, collisionDetectionRange*direction, Color.blue);
+
+                //Debug.DrawRay(m_rb.transform.position, collisionDetectionRange*direction, Color.blue);
                 return direction;
             }
         }
@@ -212,6 +236,9 @@ public class ArtifishialInteligence : MonoBehaviour
         dampingPDObstacleAvoidance = fishSettings.dampingPDObstacleAvoidance;
         frequencyPDalignment = fishSettings.frequencyPDalignment;
         dampingPDalignment = fishSettings.dampingPDalignment;
+        frequencyPDCoM = fishSettings.frequencyPDCoM;
+        dampingPDCoM = fishSettings.dampingPDCoM;
+        
         swarmSearchRadius = fishSettings.swarmSearchRadius;
         collisionDetectionRange = fishSettings.collisionDetectionRange;
 
@@ -307,6 +334,20 @@ public class ArtifishialInteligence : MonoBehaviour
         }
     }  
     */
+
+    Vector3 CalculateSwarmCoM(GameObject[] fishArray)
+    {
+            Vector3 meanPosition = Vector3.zero;
+            // What are the other fish doing?
+            for (int i = 0; i < fishArray.Length; i++)
+            {
+                // Calculate mean rotation of all the other fish
+                meanPosition += fishArray[i].transform.position;
+            }
+            
+            meanPosition = meanPosition / fishArray.Length;
+            return meanPosition;
+    }
 
     Quaternion CalculateSwarmalignment(GameObject[] fishArray)
     {

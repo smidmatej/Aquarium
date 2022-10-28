@@ -903,22 +903,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c89adf2e1e9d87d438de923c37a6c103, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  swim_speed: 5
+  swimSpeed: 500
+  frequencyPDObstacleAvoidance: 50
+  dampingPDObstacleAvoidance: 1
+  frequencyPDCoM: 10
+  dampingPDCoM: 1
+  frequencyPDalignment: 10
+  dampingPDalignment: 1
+  swarmSearchRadius: 10
+  alignmentCoefficient: 1
+  avoidanceCoefficient: 1
+  randomTorqueCoefficient: 1
   randomRotationVariance: 0.1
-  frequency: 50
-  damping: 1
-  searchRadius: 10
-  repelForceMultiplier: 1
-  attractForceMultiplier: 0.1
+  numberOfRays: 10
   collisionDetectionRange: 10
-  evasionAvoidanceCoefficient: 1
-  spinAvoidanceCoefficient: 1
-  minSpeed: 1
-  maxSpeed: 10
-  maxSteerForce: 10
-  swarmCoefficient: 10
-  cohesionCoefficient: 10
-  separationCoefficient: 10
 --- !u!1 &1452864071
 GameObject:
   m_ObjectHideFlags: 0

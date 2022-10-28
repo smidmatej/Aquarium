@@ -17,6 +17,10 @@ public class FishSettings : MonoBehaviour
     [SerializeField] public float frequencyPDObstacleAvoidance = 1.0f;
     [SerializeField] public float dampingPDObstacleAvoidance = 1.0f;
 
+    [Header("CoM PID")]
+    [SerializeField] public float frequencyPDCoM = 1.0f;
+    [SerializeField] public float dampingPDCoM = 1.0f;
+
     [Header("Alignment PID")]
     [SerializeField] public float frequencyPDalignment = 1.0f;
     [SerializeField] public float dampingPDalignment = 1.0f;
