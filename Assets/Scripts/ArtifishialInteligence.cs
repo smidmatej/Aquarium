@@ -28,7 +28,9 @@ public class ArtifishialInteligence : MonoBehaviour
     float avoidanceCoefficient = 10.0f;
     float randomTorqueCoefficient = 1.0f;
 
+    bool drawRayToNearFish = true;
 
+    bool drawCollisionAvoidanceRays = true;
 
     public FishSettings fishSettings;
 
@@ -69,7 +71,7 @@ public class ArtifishialInteligence : MonoBehaviour
         // This casts rays only against colliders in layer 3.
         // But to collide against everything except layer 3, use the ~ operator because it inverts a bitmask.
         fishLayerMask = ~fishLayerMask;
-
+        fishLayerMask = 0;
     
         // Extents are the half-widths of the box.
         // I only care about the thickness
@@ -80,7 +82,7 @@ public class ArtifishialInteligence : MonoBehaviour
         otherFish = GameObject.FindGameObjectsWithTag(my_species);
         // I am a fish, but I am not other fish
         RemoveMyselfFromOtherFishArray();
-
+        Debug.Log("otherFish.Length = " + otherFish.Length);
         if(otherFish.Length != 0)
         {
             nearFish = findNearFish();
@@ -125,8 +127,9 @@ public class ArtifishialInteligence : MonoBehaviour
                 //swarmCenterTorquePID *= T;
             }
         }
-
-        DrawRayToNearFish();
+        
+        if(drawRayToNearFish)
+            DrawRayToNearFish();
         
         // Avoidance
         if(isHeadingForColision())
@@ -186,15 +189,17 @@ public class ArtifishialInteligence : MonoBehaviour
         RaycastHit hitInfo;
 
         // Cast a ray in ray direction and check for hit
-        if(Physics.SphereCast(ray, mySize, out hitInfo, collisionDetectionRange, fishLayerMask))
+        if(Physics.SphereCast(ray, mySize, out hitInfo, collisionDetectionRange))
         {
             if(hitInfo.rigidbody != m_rb)
             {
+                if(drawCollisionAvoidanceRays)
+                    Debug.DrawRay(m_rb.transform.position, hitInfo.distance*m_rb.transform.forward, Color.red);
                 // Dont count myself as an obstacle
                 return true;
             }
             //Debug.Log(hitInfo.distance);
-            //Debug.DrawRay(m_rb.transform.position, hitInfo.distance*m_rb.transform.forward, Color.red);
+
         }
         
         return false;
@@ -210,7 +215,7 @@ public class ArtifishialInteligence : MonoBehaviour
             // if there is no obstacle, return that direction
             // directions in pointsOnASphere are sorted by distance from the center of the hemisphere, 
             // so the first one is the closest to straight direction
-            if(!Physics.SphereCast(ray, mySize, collisionDetectionRange, fishLayerMask))
+            if(!Physics.SphereCast(ray, mySize, collisionDetectionRange))
             {
 
                 //Debug.DrawRay(m_rb.transform.position, collisionDetectionRange*direction, Color.blue);
@@ -263,6 +268,8 @@ public class ArtifishialInteligence : MonoBehaviour
         otherFish = newOtherFish.ToArray();
     }
 
+
+
     /*
     private void OnDrawGizmos() {
         // Obstacle avoidance draw rays
@@ -287,52 +294,6 @@ public class ArtifishialInteligence : MonoBehaviour
         Gizmos.DrawRay(m_rb.transform.position, m_rb.transform.rotation * Vector3.up);
 
     }
-    */
-    /*
-    void ObstacleAvoidance()
-    {
-        // Obstacle avoidance
-        for (int i = 0; i < numberOfRays; i++)
-        {
-            for (int j = 0; j < numberOfRays; j++)
-            {
-
-                float phi = i/(float)numberOfRays*Mathf.PI;
-                float theta = j/(float)numberOfRays*Mathf.PI/2;
-                Spherical localDir = new Spherical(1, phi, theta); // Hemisphere in swim direction (what do my eyes see?)
-                Vector3 localDir_cart = CoordConvert.SphericalToCartesian(localDir);
-
-                Quaternion q_wb = m_rb.transform.rotation; // body to world
-                Vector3 direction = q_wb * localDir_cart; // Direction of ray in world coordinates
-
-                Ray ray = new Ray(m_rb.transform.position, direction);
-                Debug.DrawRay(m_rb.transform.position, direction *collisionDetectionRange, Color.yellow);
-                //Debug.Log(ray);
-                RaycastHit hitInfo;
-
-                // Cast a ray in ray direction and check for hit
-                if(Physics.Raycast(ray, out hitInfo, collisionDetectionRange))
-                {
-                    Debug.DrawRay(m_rb.transform.position, direction *hitInfo.distance, Color.red);
-                    //Debug.Log(hitInfo.transform.gameObject.tag.Equals("fish"));
-                    // The ray hit something, something is in front of me, I should evade
-                    if(!hitInfo.transform.gameObject.tag.Equals("fish")){
-                        // Oh its just another fish
-                        // Apply a torque around the dorsoventral axis (yaw) to dodge when I see an obstacle in from of me
-                        Debug.Log(hitInfo);
-                        Vector3 evasiveManouverTorqueAxis = q_wb * Vector3.up; // change swim direction 
-                        Vector3 spinTorqueAroundMainAxis = q_wb * Vector3.right; // little bit of spin around longitudinal axis
-                        
-                        Debug.Log((1/Mathf.Pow(hitInfo.distance, 2)*spinAvoidanceCoefficient / (float)numberOfRays) * spinTorqueAroundMainAxis);
-                        m_rb.AddTorque(spinAvoidanceCoefficient / (float)numberOfRays * spinTorqueAroundMainAxis); // spin a bit to avoid getting stuck
-                        m_rb.AddTorque((1/Mathf.Pow(hitInfo.distance, 2)*evasionAvoidanceCoefficient / (float)numberOfRays) * evasiveManouverTorqueAxis); // 
-                        
-                    }
-                }
-            }
-
-        }
-    }  
     */
 
     Vector3 CalculateSwarmCoM(GameObject[] fishArray)
