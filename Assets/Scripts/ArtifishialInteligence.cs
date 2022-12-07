@@ -82,7 +82,7 @@ public class ArtifishialInteligence : MonoBehaviour
         otherFish = GameObject.FindGameObjectsWithTag(my_species);
         // I am a fish, but I am not other fish
         RemoveMyselfFromOtherFishArray();
-        Debug.Log("otherFish.Length = " + otherFish.Length);
+        //Debug.Log("otherFish.Length = " + otherFish.Length);
         if(otherFish.Length != 0)
         {
             nearFish = findNearFish();
