@@ -160,7 +160,7 @@ Material:
     m_Ints: []
     m_Floats:
     - Vector1_97aaa69f76464d02a931205f5ff30bf7: 10
-    - Vector1_fe6e501364f24ed0b9a24244dcfb706d: 1
+    - Vector1_fe6e501364f24ed0b9a24244dcfb706d: 0.5
     - _AORemapMax: 1
     - _AORemapMin: 0
     - _ATDistance: 1
