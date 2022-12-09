@@ -47,6 +47,12 @@ namespace MyMathTools
             this.phi = phi;
             this.theta = theta;
         }
+
+        public Spherical Lerp(Spherical target, Spherical next)
+        {
+            Vector3 targetVector = Vector3.Lerp(CoordConvert.SphericalToCartesian(target), CoordConvert.SphericalToCartesian(next), 0.5f);
+            return CoordConvert.CartesianToSpherical(targetVector);
+        }
     }
 
     public static class CoordConvert
