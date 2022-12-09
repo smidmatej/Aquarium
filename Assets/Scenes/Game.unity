@@ -702,13 +702,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705507993}
-  m_LocalRotation: {x: 0.09833385, y: -0.04348998, z: -0.036493856, w: 0.9935327}
+  m_LocalRotation: {x: 0.09777499, y: -0.04437265, z: -0.03694651, w: 0.9935321}
   m_LocalPosition: {x: -1.3, y: 18.8, z: -25.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1291413634}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 11.082, y: -5.473, z: -4.739}
+  m_LocalEulerAnglesHint: {x: 11.012, y: -5.577, z: -4.797}
 --- !u!114 &705507996
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1264,7 +1264,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fish: {fileID: 3881420645387784449, guid: a38429d56f35d694190020bebbf0eb7b, type: 3}
-  number_of_objects: 100
+  number_of_objects: 50
 --- !u!1 &1025189458
 GameObject:
   m_ObjectHideFlags: 0
