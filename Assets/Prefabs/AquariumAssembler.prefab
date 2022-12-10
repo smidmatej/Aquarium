@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2736490846839403496
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2736490846839403493}
+  - component: {fileID: 2736490846839403499}
+  m_Layer: 0
+  m_Name: AquariumAssembler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2736490846839403493
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2736490846839403496}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.3225597, y: 0.25103903, z: -1.0768027}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2736490846839403499
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2736490846839403496}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d669b28d2a1f7c48b07a53d2dd9c8c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hsize: {x: 100, y: 100}
+  wallHeight: 20
+  wallThickness: 0.5
+  nVertexesX: 100
+  nVertexesY: 100
+  groundNoisePower: 1
+  glassWallPrefab: {fileID: 7328491913902212392, guid: 2acf8ceda54b94c4ea02782bce8bb3d2, type: 3}
+  baseWallPrefab: {fileID: 7328491913902212392, guid: 692baedb530ce174d85cbec53e11d30f, type: 3}
+  groundPrefab: {fileID: 7328491913902212392, guid: ffc1d1c25e1395847bae15346c7115a5, type: 3}
+  waterPrefab: {fileID: 8289511877595698485, guid: 2e11ec3c61984c245b01fbe99a62aeaf, type: 3}

@@ -4,17 +4,6 @@ using UnityEngine;
 
 public class Utils : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     public static List<Vector3> fibonacciSphere(int samples, Quaternion centerRotation)
     {
@@ -36,6 +25,16 @@ public class Utils : MonoBehaviour
         }
 
         return points;
+    }
+
+    public static void SpawnObjects(int numberOfObjects, GameObject fish, Vector3 spawnCenter, float spawnRadius)
+    {
+        for(int i=0; i<numberOfObjects; i++)
+        {
+            Vector3 spawnPos = spawnCenter + Random.insideUnitSphere * spawnRadius;
+            Vector3 spawnRot = new Vector3(0, Random.Range(0.0f, 360.0f), 0);
+            Instantiate(fish, spawnPos, Quaternion.Euler(spawnRot));
+        }
     }
 
     

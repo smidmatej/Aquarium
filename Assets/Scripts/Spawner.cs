@@ -4,26 +4,18 @@ using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
-    [SerializeField] public GameObject fish;
+    public GameObject fish;
 
-    [SerializeField] public int number_of_objects;
+    public int numberOfObjects = 10;
+    public Vector3 spawnCenter = new Vector3(0, 0, 0);
+    public float spawnRadius = 1f;
+
     // Start is called before the first frame update
     void Start()
     {
-        for(int i=0; i<number_of_objects; i++)
-        {
-
-            Instantiate(fish, new Vector3(Random.Range(-10.0f, 10.0f), 
-                            Random.Range(-10.0f, 10.0f), 
-                            Random.Range(-10.0f, 10.0f)), 
-                            Quaternion.Euler(Random.Range(0.0f, 360.0f), Random.Range(0.0f, 360.0f), Random.Range(0.0f, 360.0f)));
-        }
+        Utils.SpawnObjects(numberOfObjects, fish, spawnCenter, spawnRadius);
        
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+
 }

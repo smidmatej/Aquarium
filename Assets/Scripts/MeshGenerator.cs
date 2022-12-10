@@ -9,7 +9,7 @@ using UnityEngine.Rendering;
 public class MeshGenerator : MonoBehaviour
 {
 
-    delegate Vector3 ComputePositionDelegate(float kx,float kz);
+    public delegate Vector3 ComputePositionDelegate(float kx,float kz);
 
     [SerializeField] Texture2D m_HeightMap;
 
@@ -25,16 +25,6 @@ public class MeshGenerator : MonoBehaviour
     void Start()
     {
         mf = GetComponent<MeshFilter>();
-        //mf.mesh = CreateQuad(new Vector3(1,1,1), new Vector3(0,0,0));
-        /*
-        mf.mesh = CreateNormalizedPlaneXZ(nx, nz,
-         (float kx, float kz) => { 
-            return CoordConvert.SphericalToCartesian(new Spherical(kz*kx, -2*Mathf.PI*kx, Mathf.PI*kz));
-            } 
-            );
-            */
-
-
         mf.mesh = CreateNormalizedPlaneXZ(nx, nz,
          (float kx, float kz) => { 
             return new Vector3(
@@ -43,33 +33,6 @@ public class MeshGenerator : MonoBehaviour
                         Mathf.Lerp(-hsize.y, hsize.y, kz));
             } 
             );
-            
-
-        
-        
-        /*
-        mf.mesh = CreateNormalizedPlaneXZ(nx, nz,
-         (float kx, float kz) => { 
-            float y = r + r/2*m_HeightMap.GetPixel((int)(kx*m_HeightMap.width), (int)(kz*m_HeightMap.height)).grayscale;
-            float alpha = 2*Mathf.PI * (1-kx);
-            float theta = 2*Mathf.PI * kz;
-            Vector3 OOmega = new Vector3(R*Mathf.Cos(theta), 0, R*Mathf.Sin(theta));
-            return OOmega + OOmega.normalized * y * Mathf.Cos(alpha) + y*Mathf.Sin(alpha) * Vector3.up;// + Vector3.up*2*y*kz;
-
-            
-         });
-        */
-        /*
-        mf.mesh = CreateNormalizedPlaneXZ(1000, 1000,
-         (float kx, float kz) => { 
-            float y = m_HeightMap.GetPixel((int)(kx*m_HeightMap.width), (int)(kz*m_HeightMap.height)).grayscale;
-            //Debug.Log(y);
-            return new Vector3(Mathf.Lerp(-10,10, kx), 
-                        y*4,
-                        Mathf.Lerp(-10,10,kz));
-            } 
-            );
-            */
         gameObject.AddComponent<MeshCollider>();
         
 
@@ -249,7 +212,7 @@ public class MeshGenerator : MonoBehaviour
         mesh.RecalculateNormals();
         return mesh;
     }
-     Mesh CreateNormalizedPlaneXZ(int nSegmentsX, int nSegmentsZ, ComputePositionDelegate posCompute = null)
+    public static Mesh CreateNormalizedPlaneXZ(int nSegmentsX, int nSegmentsZ, ComputePositionDelegate posCompute = null)
     {
         Mesh mesh = new Mesh();
         mesh.indexFormat = IndexFormat.UInt32;
