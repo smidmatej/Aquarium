@@ -34,6 +34,8 @@ public class AquariumAssembler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        int a = 1+1;
+        int b = 1;
         parent = new GameObject("Aquarium");
         InstantiateWalls();
         InstantiateBase();

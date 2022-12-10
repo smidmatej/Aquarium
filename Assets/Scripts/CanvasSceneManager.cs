@@ -13,9 +13,11 @@ public class CanvasSceneManager : MonoBehaviour
             transform.Find("StartMenu").gameObject.SetActive(false);
         }
 
+        
         if(SceneManager.GetSceneByName("StartMenu").IsValid() == true) {
             transform.Find("StartMenu").gameObject.SetActive(true);
         }
+        
     }
 
 }

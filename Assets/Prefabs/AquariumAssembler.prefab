@@ -47,6 +47,7 @@ MonoBehaviour:
   hsize: {x: 100, y: 100}
   wallHeight: 20
   wallThickness: 0.5
+  NumberOfFish: 10
   nVertexesX: 100
   nVertexesY: 100
   groundNoisePower: 1
@@ -54,3 +55,4 @@ MonoBehaviour:
   baseWallPrefab: {fileID: 7328491913902212392, guid: 692baedb530ce174d85cbec53e11d30f, type: 3}
   groundPrefab: {fileID: 7328491913902212392, guid: ffc1d1c25e1395847bae15346c7115a5, type: 3}
   waterPrefab: {fileID: 8289511877595698485, guid: 2e11ec3c61984c245b01fbe99a62aeaf, type: 3}
+  fishPrefab: {fileID: 3881420645387784449, guid: a38429d56f35d694190020bebbf0eb7b, type: 3}

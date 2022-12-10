@@ -29,11 +29,14 @@ public class Utils : MonoBehaviour
 
     public static void SpawnObjects(int numberOfObjects, GameObject fish, Vector3 spawnCenter, float spawnRadius)
     {
+        GameObject newObject;
+        GameObject fishSwarm = new GameObject("FishSwarm");
         for(int i=0; i<numberOfObjects; i++)
         {
             Vector3 spawnPos = spawnCenter + Random.insideUnitSphere * spawnRadius;
             Vector3 spawnRot = new Vector3(0, Random.Range(0.0f, 360.0f), 0);
-            Instantiate(fish, spawnPos, Quaternion.Euler(spawnRot));
+            newObject = Instantiate(fish, spawnPos, Quaternion.Euler(spawnRot));
+            newObject.transform.SetParent(fishSwarm.transform, false);
         }
     }
 
