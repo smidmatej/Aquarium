@@ -1,0 +1,37 @@
+﻿Game Designed by 
+Matej Smid and Sofia Fedotova
+“Aquarium”
+Paris, 2022
+
+We are ready invite you to immerse yourself in the world of The Beatles and explore our aquarium on a Yellow Submarine.
+***************************************************************************
+How to play?
+    Use AWD keyboard buttons to manipulate the submarine.(A - to make it move left, D - to make it move right, W - to move forward)
+    The depth of the submarine can be changed using RF buttons (R - to move up, F - to move down)
+    Press Esc in order to set a Pause and Change Settings or to Quit the Game.
+
+Objects of the game
+    Fishes:
+    Aquarium: Is generated automatically using modified MeshGenerator script written during the Practical Work 
+    Sand: Sand generation is implemented by using a PerlinNoise theory im a mesh creation and also the shager is apllied in order to animate it
+    Water: Plane mesh with a shader for animation
+    Trees: Trees are generated fully automatically using Lsystens theory with a taken from the internet amd modified script
+    Submarine: The character of the game – can be manipulated by AWD RF, have a light on it, no special math required.
+    
+References
+    Music: The Beatles – Yellow Submarine
+    LS-systems script used to generate trees are taken from the free forum:
+    The model of the fish:"Low poly fish" (https://skfb.ly/6Axvw) free model by Marcus Vinicius
+
+Notes and Bugs to be fixed
+    *The sand and the surface are animated by shaders so the solid part ob the surfaces and the part that can be seen aren't matching as a result
+    the submarine can basicaly sink into the sand and and can't reach the surface of the water
+    *Trees are generated automatically using scpipt and sometimes they are being generated above the surface
+    *In this version submarine and fish just pass through trees not considering them as a solid objects
+    
+
+Who did what
+    Matej
+        Fish generation, Aquariun generation, Trees generation, Surfaces generation
+    Sofia 
+        Submarine, Music, Trees generation
