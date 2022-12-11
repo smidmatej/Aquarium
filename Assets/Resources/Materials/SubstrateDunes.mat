@@ -61,7 +61,7 @@ Material:
     - _DoubleSidedGIMode: 0
     - _DoubleSidedNormalMode: 2
     - _DstBlend: 0
-    - _DuneHeight: 1
+    - _DuneHeight: 2
     - _EnableBlendModePreserveSpecularLighting: 1
     - _EnableFogOnTransparent: 1
     - _OpaqueCullMode: 2
@@ -94,7 +94,7 @@ Material:
     - _UseShadowThreshold: 0
     - _WaveFrequency: 0.1
     - _WaveLength: 0.01
-    - _WaveSpeed: 1
+    - _WaveSpeed: 3
     - _ZTestDepthEqualForOpaque: 3
     - _ZTestGBuffer: 4
     - _ZTestTransparent: 4
