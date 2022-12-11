@@ -2,14 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class LSystemsD : MonoBehaviour {
+public class LSystemsD: MonoBehaviour {
     
     private List<int> numberSegments = new List<int>();
     
     public float segBottomRadius = .55f;
 	public float segTopRadius = .15f;
 	
-	public float segLength = 1.0f;
+	public float segLength = 0.5f;
     
     private List<float> curBotRadius = new List<float>();
     private List<float> curTopRadius = new List<float>();
@@ -57,31 +57,75 @@ public class LSystemsD : MonoBehaviour {
     
     
     
-    
-	// Use this for initialization
-	void Start () {
-		SetupCone();
-		CreateMesh();
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
-	
-	
-	
-	
-	
-	
-	
-	void SetupCone(){
+
+
+    private void Start()
+    {
+		for (int i = 0; i < 1; i++)
+		{
+			SetupCone(15, new Vector3(i*10, 0f, 0f)) ; 
+            CreateMesh();
+			//Reinitialize();
+        }
+        
+    }
+
+	private void Reinitialize()
+	{
+
+
+		numberSegments = new List<int>();
+
+
+		curBotRadius = new List<float>();
+		curTopRadius = new List<float>();
+
+		gvertices = new List<Vector3>();
+		gnormales = new List<Vector3>();
+		guvs = new List<Vector2>();
+		gtriangles = new List<int>();
+
+		topVertices = new List<int>();
+
+		minVertex = new List<int>();
+		maxVertex = new List<int>();
+
+		minTriangle = new List<int>();
+		maxTriangle = new List<int>();
+
+		currentSegmentId = 0;
+		currentBranchId = 0;
+
+
+
+
+		angle = new List<float>();
+
+
+		segmentPos = new List<Vector3>();
+		segmentRot = new List<Quaternion>();
+
+		segmentLocRotVect = new List<Vector3>();
+
+
+
+		inhSegId = new List<int>();
+		inhBranchId = new List<int>();
+
+		branchingOrder = new List<int>();
+
+}
+
+
+
+    void SetupCone(int numberOfSegments, Vector3 InitPos)
+    {
 	    
-	    numberSegments.Add(25);
+	    numberSegments.Add(numberOfSegments);
 	    
 
 		
-		
+		 
 		iniAngle = 0.0f/segLength;
 		
 		angle.Add(0.0f);
@@ -100,8 +144,8 @@ public class LSystemsD : MonoBehaviour {
 		Vector3 rotVect = new Vector3(0f,0f,1f);
 
 		
-		segmentPos.Add(new Vector3(0f,0f,0f));
-		segmentLocRotVect.Add(new Vector3(0f,1f,0f));
+		segmentPos.Add(InitPos);
+		segmentLocRotVect.Add(InitPos);
 		
 	//	segmentRot.Add(Quaternion.AngleAxis( 0.5f*iniAngle, rotVect));
 		segmentRot.Add(Quaternion.AngleAxis( iniAngle, rotVect));
@@ -946,7 +990,7 @@ public class LSystemsD : MonoBehaviour {
         }
 		
 		else{
-			GameObject plane = new GameObject("Plane");
+			GameObject plane = new GameObject("Tree");
 			MeshFilter filter = plane.AddComponent<MeshFilter>();
 			Mesh mesh = filter.mesh;
 			mesh.Clear();
