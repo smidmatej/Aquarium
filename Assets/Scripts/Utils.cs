@@ -39,6 +39,18 @@ public class Utils : MonoBehaviour
             newObject.transform.SetParent(fishSwarm.transform, false);
         }
     }
+    public static void SpawnObjectsOnPlane(int numberOfObjects, GameObject fish, Vector3 spawnCenter, float spawnRadius)
+    {
+        GameObject newObject;
+        GameObject fishSwarm = new GameObject("FishSwarm");
+        for (int i = 0; i < numberOfObjects; i++)
+        {
+            Vector3 spawnPos = spawnCenter + new Vector3(Random.Range(0.0f, 1.0f), spawnCenter.y, Random.Range(0.0f, 1.0f)) * spawnRadius;
+            Vector3 spawnRot = new Vector3(0, Random.Range(0.0f, 360.0f), 0);
+            newObject = Instantiate(fish, spawnPos, Quaternion.Euler(spawnRot));
+            newObject.transform.SetParent(fishSwarm.transform, false);
+        }
+    }
 
-    
+
 }

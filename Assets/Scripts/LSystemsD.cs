@@ -61,12 +61,10 @@ public class LSystemsD: MonoBehaviour {
 
     private void Start()
     {
-		for (int i = 0; i < 1; i++)
-		{
-			SetupCone(15, new Vector3(i*10, 0f, 0f)) ; 
-            CreateMesh();
-			//Reinitialize();
-        }
+
+		SetupCone(25, new Vector3(5, 0f, 0f)) ; 
+        CreateMesh();
+		//Reinitialize();
         
     }
 
@@ -144,7 +142,7 @@ public class LSystemsD: MonoBehaviour {
 		Vector3 rotVect = new Vector3(0f,0f,1f);
 
 		
-		segmentPos.Add(InitPos);
+		segmentPos.Add(transform.position);
 		segmentLocRotVect.Add(InitPos);
 		
 	//	segmentRot.Add(Quaternion.AngleAxis( 0.5f*iniAngle, rotVect));
@@ -1004,12 +1002,14 @@ public class LSystemsD: MonoBehaviour {
 			mesh.Optimize();
 			
 			MeshRenderer renderer = plane.AddComponent(typeof(MeshRenderer)) as MeshRenderer;
-			renderer.material.shader = Shader.Find ("Diffuse");
-			Texture2D tex = new Texture2D(1, 1);
+			Material myMat = Resources.Load("Materials/TreeMaterial", typeof(Material)) as Material;
+			renderer.material = myMat;
+
+            /*Texture2D tex = new Texture2D(1, 1);
 			tex.SetPixel(0, 0, Color.green);
 			tex.Apply();
 			renderer.material.mainTexture = tex;
-			renderer.material.color = Color.green;
+			renderer.material.color = Color.green;*/
 			
 		}
 	}

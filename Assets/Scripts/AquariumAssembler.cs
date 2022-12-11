@@ -13,6 +13,7 @@ public class AquariumAssembler : MonoBehaviour
 
     [Header("Fish Spawn")]
     public int NumberOfFish = 10;
+    public int NumberOfTrees = 12;
 
 
     [Header("Ground and Water Detail")]
@@ -26,7 +27,8 @@ public class AquariumAssembler : MonoBehaviour
     public GameObject groundPrefab;
     public GameObject waterPrefab;
     public GameObject fishPrefab;
-    
+    public GameObject treePrefab;
+
     private GameObject parent;
     private float fogOverlap = 0.3f;
 
@@ -44,7 +46,9 @@ public class AquariumAssembler : MonoBehaviour
 
         float spawnRadius = Mathf.Min(new float[] { hsize.x, hsize.y, wallHeight }) / 2;
         Utils.SpawnObjects(NumberOfFish, fishPrefab, new Vector3(0, wallHeight/2, 0), spawnRadius);
-        
+
+        Vector3 spawnCenter = new Vector3(0f, 0f, 0f);
+        Utils.SpawnObjects(NumberOfTrees, treePrefab, spawnCenter, spawnRadius * 1.7f);
 
     }
 
